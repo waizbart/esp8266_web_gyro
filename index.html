@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ESP GYRO</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="coords" style="background-color: black; color: aqua; text-align: center;"></div>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+        const coords_div = document.getElementById('coords');
+
+        var socket = io();
+
+        let coords = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+
+        socket.on('data', function (msg) {
+            msg = msg.replace('\n', ' ').replace('\r', '').replace('\t', ' ');
+            let arr = msg.split(':')
+
+            //remove o que não é número regex
+            arr[1] = arr[1].replace(/[^0-9.-]/g, '');
+
+            coords.x = parseFloat(arr[1].replace(/[^0-9.-]/g, ''));
+            coords.y = parseFloat(arr[2].replace(/[^0-9.-]/g, ''));
+            coords.z = parseFloat(arr[3].replace(/[^0-9.-]/g, ''));
+
+            coords_div.innerHTML = `X: ${coords.x} Y: ${coords.y}`;
+
+            console.log(coords);
+        });
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const geometry = new THREE.BoxGeometry(1, 0.2, 2);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+
+        const edges = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 'blue' }))
+
+        cube.add(line)
+        scene.add(cube)
+
+        camera.position.z = 3;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            cube.rotation.x = coords.y / 100;
+            cube.rotation.y = coords.x / 100;
+
+            renderer.render(scene, camera);
+        };
+
+        animate();
+    </script>
+</body>
+
+</html>

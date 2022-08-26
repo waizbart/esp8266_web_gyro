@@ -1,0 +1,12 @@
+{
+  "name": "esp8266_gyro_node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19",
+    "serialport": "^10.4.0",
+    "socket.io": "^4.5.1"
+  }
+}
